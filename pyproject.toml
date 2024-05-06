@@ -25,7 +25,7 @@ streamlit = "^1.24.0"
 pyautogen = "^0.2.27"
 
 [tool.poetry.group.dev.dependencies]
-httpx = {extras = ["socks"], version = "^0.26.0"}
+httpx = {extras = ["socks"], version = "^0.27.0"}
 
 [build-system]
 requires = ["poetry-core"]
