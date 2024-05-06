@@ -11,6 +11,22 @@ Features:
 
 ## Install
 
+### Install locally
+
+Install the copilot with pip command below:
+
+```sh
+pip install kube-agent
+```
+
+**Setup:**
+
+- Ensure [`kubectl`](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/) is installed on the local machine and the kubeconfig file is configured for Kubernetes cluster access.
+- Install [`trivy`](https://github.com/aquasecurity/trivy) to assess container image security issues (for the `audit` command).
+- Set the OpenAI [API key](https://platform.openai.com/account/api-keys) as the `OPENAI_API_KEY` environment variable to enable ChatGPT functionality.
+  - For [Azure OpenAI service](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/quickstart?tabs=command-line&pivots=rest-api#retrieve-key-and-endpoint), please set ` AZURE_OPENAI_API_KEY=<key>` and `AZURE_OPENAI_ENDPOINT=https://<replace-this>.openai.azure.com/`.
+
+
 ### Run in Kubernetes
 
 ```sh
@@ -29,21 +45,6 @@ kubectl run -it --rm copilot \
 ```
 
 Refer [kubernetes.md](kubernetes.md) for more detailed steps.
-
-### Run locally
-
-Install the copilot with pip command below:
-
-```sh
-pip install kube-agent
-```
-
-**Setup:**
-
-- Ensure [`kubectl`](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/) is installed on the local machine and the kubeconfig file is configured for Kubernetes cluster access.
-- Install [`trivy`](https://github.com/aquasecurity/trivy) to assess container image security issues (for the `audit` command).
-- Set the OpenAI [API key](https://platform.openai.com/account/api-keys) as the `OPENAI_API_KEY` environment variable to enable ChatGPT functionality.
-  - For [Azure OpenAI service](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/quickstart?tabs=command-line&pivots=rest-api#retrieve-key-and-endpoint), please set ` AZURE_OPENAI_API_KEY=<key>` and `AZURE_OPENAI_ENDPOINT=https://<replace-this>.openai.azure.com/`.
 
 ## How to use
 
