@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kube-agent"
-version = "0.1.0"
+version = "0.1.1"
 description = "Kubernetes Copilot"
 authors = ["Pengfei Ni <feiskyer@gmail.com>"]
 readme = "README.md"
