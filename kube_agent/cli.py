@@ -129,7 +129,7 @@ def generate(ctx, instructions, verbose, model):
     if click.confirm('Do you approve to apply the generated manifests to cluster?'):
         yaml_blocks = re.findall(r'```yaml(.*?)```', result, re.DOTALL)
         manifests = '\n---\n'.join([b.strip() for b in yaml_blocks]) + '\n'
-        print(KubeProcess(command="kubectl").run(
+        print(KubeProcess(command="kubectl", return_err_output=True).run(
             'kubectl apply -f -', input=bytes(manifests, 'utf-8')))
 
 

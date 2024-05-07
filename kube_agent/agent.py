@@ -62,8 +62,15 @@ class KubeCopilotAgent:
 
     def termination_msg(self, x):
         '''Check if the message is a termination message.'''
-        return isinstance(x, dict) and ("TERMINATE" == str(x.get("content", "")).strip()[-9:].upper() or
-                                        "TERMINATE." == str(x.get("content", "")).strip()[-10:].upper())
+        if not isinstance(x, dict):
+            return False
+
+        if not x.get("content", ""):
+            return False
+
+        content = str(x.get("content", "")).strip()
+        content = content.rstrip(".").rstrip("*").strip()
+        return "TERMINATE" == content[-9:].upper()
 
     def get_admin(self):
         '''Get the admin for the Kubernetes Copilot.'''
