@@ -13,9 +13,18 @@ Features:
 
 ### Install locally
 
-Install the copilot with pip command below:
+Install the kube-agent with the commands below. It is highly recommended to use [pipx](https://pipx.pypa.io/stable/) or [venv](https://docs.python.org/3/library/venv.html) to install the copilot to avoid conflicts with other Python packages.
 
 ```sh
+# Option 1: use pipx to install the copilot
+pipx install kube-agent
+
+# Option 2: use venv to install the copilot
+python3 -m venv agentenv
+source agentenv/bin/activate
+pip install kube-agent
+
+# Option 3: Use pip to install the copilot (not recommended)
 pip install kube-agent
 ```
 
