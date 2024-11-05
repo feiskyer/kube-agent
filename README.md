@@ -76,6 +76,84 @@ Commands:
   generate  generate Kubernetes manifests
 ```
 
+### Audit Security Issues for Pod
+
+`kube-copilot audit POD [NAMESPACE]` will audit security issues for a Pod:
+
+```sh
+Usage: kube-copilot audit [OPTIONS] POD [NAMESPACE]
+
+  audit security issues for a Pod
+
+Options:
+  --verbose      Enable verbose information of copilot execution steps
+  --model MODEL  OpenAI model to use for copilot execution, default is gpt-4
+  --help         Show this message and exit.
+```
+
+### Diagnose Problems for Pod
+
+`kube-copilot diagnose POD [NAMESPACE]` will diagnose problems for a Pod:
+
+```sh
+Usage: kube-copilot diagnose [OPTIONS] POD [NAMESPACE]
+
+  diagnose problems for a Pod
+
+Options:
+  --verbose      Enable verbose information of copilot execution steps
+  --model MODEL  OpenAI model to use for copilot execution, default is gpt-4
+  --help         Show this message and exit.
+```
+
+### Analyze Potential Issues for k8s Object
+
+`kube-copilot analyze RESOURCE NAME [NAMESPACE]` will analyze potential issues for the given resource object:
+
+```sh
+Usage: kube-copilot analyze [OPTIONS] RESOURCE NAME [NAMESPACE]
+
+  analyze issues for a given resource
+
+Options:
+  --verbose     Enable verbose information of copilot execution steps
+  --model TEXT  OpenAI model to use for copilot execution, default is gpt-4
+  --help        Show this message and exit.
+```
+
+### Execute Operations Based on Prompt Instructions
+
+`kube-copilot execute INSTRUCTIONS` will execute operations based on prompt instructions.
+It could also be used to ask any questions.
+
+```sh
+Usage: kube-copilot execute [OPTIONS] INSTRUCTIONS
+
+  execute operations based on prompt instructions
+
+Options:
+  --verbose      Enable verbose information of copilot execution steps
+  --model MODEL  OpenAI model to use for copilot execution, default is gpt-4
+  --help         Show this message and exit.
+```
+
+### Generate Kubernetes Manifests
+
+Use the `kube-copilot generate` command to create Kubernetes manifests based on
+the provided prompt instructions. After generating the manifests, you will be
+prompted to confirm whether you want to apply them.
+
+```sh
+Usage: kube-copilot generate [OPTIONS] INSTRUCTIONS
+
+  generate Kubernetes manifests
+
+Options:
+  --verbose     Enable verbose information of copilot execution steps
+  --model TEXT  OpenAI model to use for copilot execution, default is gpt-4
+  --help        Show this message and exit.
+```
+
 ## Contribution
 
 The project is opensource at github [feiskyer/kube-agent](https://github.com/feiskyer/kube-agent) with Apache License.

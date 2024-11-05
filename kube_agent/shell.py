@@ -4,8 +4,8 @@ from typing import List, Union
 import tiktoken
 
 
-class KubeProcess():
-    '''Wrapper for cloud native commands.'''
+class CommandExecutor():
+    '''Wrapper for shell commands.'''
 
     def __init__(self, command, max_tokens=3000, strip_newlines: bool = False, return_err_output: bool = False):
         """Initialize with stripping newlines."""
@@ -50,3 +50,18 @@ class KubeProcess():
         if self.strip_newlines:
             output = output.strip()
         return output
+
+
+class ScriptExecutor(CommandExecutor):
+    '''Wrapper for script execution.'''
+
+    def __init__(self, command, max_tokens=3000, strip_newlines: bool = False, return_err_output: bool = False):
+        """Initialize script executor."""
+        super().__init__(f'{command} -c', max_tokens, strip_newlines, return_err_output)
+
+    def run(self, code: Union[str, List[str]]) -> str:
+        '''Run script and return output.'''
+        if isinstance(code, list):
+            code = '\n'.join(code)
+        code = code.replace("'", "'\"'\"'")
+        return super().run(f"'{code}'")
