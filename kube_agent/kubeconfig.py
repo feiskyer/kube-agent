@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import base64
 import os
 
@@ -5,9 +6,9 @@ import os
 def get_kubeconfig():
     '''Get kubeconfig for the current Pod.'''
     token = open("/run/secrets/kubernetes.io/serviceaccount/token",
-                 "r", encoding="utf-8").read().strip()  # Strip newline characters
+                 "r", encoding="utf-8").read().strip()  
     cert = open("/run/secrets/kubernetes.io/serviceaccount/ca.crt",
-                "r", encoding="utf-8").read().strip()  # Strip newline characters
+                "r", encoding="utf-8").read().strip()  
     cert = base64.b64encode(cert.encode()).decode()
     host = os.environ.get("KUBERNETES_SERVICE_HOST")
     port = os.environ.get("KUBERNETES_SERVICE_PORT")

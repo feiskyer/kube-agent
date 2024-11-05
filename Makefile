@@ -17,6 +17,11 @@ release: build
 	poetry publish
 	gh release create v$(shell poetry version -s)
 
+.PHONY: update
+update:
+	poetry up
+	poetry update
+
 .PHONY: clean
 clean:
 	rm -rf dist
@@ -30,3 +35,4 @@ install-poetry:
 	# curl -sSL https://install.python-poetry.org | python3 -
 	# brew install pipx && pipx ensurepath
 	pipx install poetry
+	poetry self add poetry-plugin-up

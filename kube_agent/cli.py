@@ -2,9 +2,11 @@
 # -*- coding: utf-8 -*-
 import logging
 import re
-import sys
+import asyncio
 import click
 
+from autogen_agentchat import EVENT_LOGGER_NAME
+from autogen_agentchat.logging import ConsoleLogHandler
 from kube_agent.agent import KubeCopilotAgent
 from kube_agent.kubeconfig import setup_kubeconfig
 from kube_agent.shell import KubeProcess
@@ -16,15 +18,14 @@ from kube_agent.prompts import (
     get_generate_prompt
 )
 
-
-logging.basicConfig(stream=sys.stdout, level=logging.CRITICAL)
-logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
-
+logger = logging.getLogger(EVENT_LOGGER_NAME)
+logger.addHandler(ConsoleLogHandler())
+logger.setLevel(logging.INFO)
 
 cmd_options = [
     click.option("--verbose", default=True,
                  help="Enable verbose information of copilot execution steps"),
-    click.option("--model", default="gpt-4",
+    click.option("--model", default="gpt-4o",
                  help="OpenAI model to use for copilot execution, default is gpt-4"),
 ]
 
@@ -57,7 +58,7 @@ def execute(ctx, instructions, verbose, model):
     try:
         instructions = ' '.join(instructions)
         agent = KubeCopilotAgent(model, silent=not verbose)
-        result = agent.run(get_prompt(instructions))
+        result = asyncio.run(agent.run(get_prompt(instructions)))
         print(result)
     except Exception as e:
         print(f"Error: {e}")
@@ -71,7 +72,7 @@ def diagnose(namespace, pod, verbose, model):
     '''Diagnose problems for a Pod'''
     try:
         agent = KubeCopilotAgent(model, silent=not verbose)
-        result = agent.run(get_diagnose_prompt(namespace, pod))
+        result = asyncio.run(agent.run(get_diagnose_prompt(namespace, pod)))
         print(result)
     except Exception as e:
         print(f"Error: {e}")
@@ -85,7 +86,7 @@ def audit(namespace, pod, verbose, model):
     '''Audit security issues for a Pod'''
     try:
         agent = KubeCopilotAgent(model, silent=not verbose)
-        result = agent.run(get_audit_prompt(namespace, pod))
+        result = asyncio.run(agent.run(get_audit_prompt(namespace, pod)))
         print(result)
     except Exception as e:
         print(f"Error: {e}")
@@ -100,7 +101,7 @@ def analyze(resource, namespace, name, verbose, model):
     '''Analyze potential issues for a given resource'''
     try:
         agent = KubeCopilotAgent(model, silent=not verbose)
-        result = agent.run(get_analyze_prompt(namespace, resource, name))
+        result = asyncio.run(agent.run(get_analyze_prompt(namespace, resource, name)))
         print(result)
     except Exception as e:
         print(f"Error: {e}")
@@ -119,7 +120,7 @@ def generate(ctx, instructions, verbose, model):
     try:
         instructions = ' '.join(instructions)
         agent = KubeCopilotAgent(model, silent=not verbose)
-        result = agent.plan(get_generate_prompt(instructions))
+        result = asyncio.run(agent.plan(get_generate_prompt(instructions)))
         print(result)
     except Exception as e:
         print(f"Error: {e}")

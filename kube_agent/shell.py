@@ -23,10 +23,6 @@ class KubeProcess():
         if not commands.startswith(self.command):
             commands = f'{self.command} {commands}'
         result = self.exec(commands, input=input)
-
-        # TODO: workarounds for the following context length error with ChatGPT
-        #   https://github.com/hwchase17/langchain/issues/2140
-        #   https://github.com/hwchase17/langchain/issues/1767
         tokens = self.encoding.encode(result)
         while len(tokens) > self.max_tokens:
             result = result[:len(result) // 2]
