@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-import logging
+# import logging
 import re
 import asyncio
 import click
 
-from autogen_agentchat import EVENT_LOGGER_NAME
-from autogen_agentchat.logging import ConsoleLogHandler
+# from autogen_agentchat import EVENT_LOGGER_NAME
+# from autogen_agentchat.logging import ConsoleLogHandler
 from kube_agent.agent import KubeCopilotAgent
 from kube_agent.kubeconfig import setup_kubeconfig
 from kube_agent.shell import KubeProcess
@@ -18,9 +18,9 @@ from kube_agent.prompts import (
     get_generate_prompt
 )
 
-logger = logging.getLogger(EVENT_LOGGER_NAME)
-logger.addHandler(ConsoleLogHandler())
-logger.setLevel(logging.INFO)
+# logger = logging.getLogger(EVENT_LOGGER_NAME)
+# logger.addHandler(ConsoleLogHandler())
+# logger.setLevel(logging.INFO)
 
 cmd_options = [
     click.option("--verbose", default=True,
@@ -120,9 +120,11 @@ def generate(ctx, instructions, verbose, model):
     try:
         instructions = ' '.join(instructions)
         agent = KubeCopilotAgent(model, silent=not verbose)
-        result = asyncio.run(agent.plan(get_generate_prompt(instructions)))
+        result = asyncio.run(agent.run(get_generate_prompt(instructions)))
         print(result)
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         print(f"Error: {e}")
         return
 

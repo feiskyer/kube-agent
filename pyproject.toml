@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "kube-agent"
-version = "0.1.1"
+version = "0.1.2"
 description = "Kubernetes Copilot"
 authors = ["Pengfei Ni <feiskyer@gmail.com>"]
 readme = "README.md"
@@ -21,9 +21,9 @@ lark = "==1.1.8"
 faiss-cpu = {version = "^1.9.0"}
 click = ">=8.1.7"
 kubernetes = ">=31.0.0"
-streamlit = "^1.39.0"
-autogen-agentchat = {version=">=0.4.0.dev3", allow-prereleases = true}
-autogen-ext = {version=">=0.4.0.dev3", allow-prereleases = true, extras=["docker"]}
+streamlit = "^1.40.1"
+autogen-agentchat = {version=">=0.4.0.dev6", allow-prereleases = true}
+autogen-ext = {version=">=0.4.0.dev6", allow-prereleases = true, extras=["docker"]}
 
 [tool.poetry.group.dev.dependencies]
 httpx = {extras = ["socks"], version = "^0.26.0"}

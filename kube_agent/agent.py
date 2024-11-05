@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 import os
 
-from autogen_agentchat.agents import (AssistantAgent, CodeExecutorAgent)
+from autogen_agentchat.agents import AssistantAgent, CodeExecutorAgent
+from autogen_agentchat.base import TaskResult
+from autogen_agentchat.messages import (HandoffMessage, StopMessage,
+                                        TextMessage, ToolCallMessage)
 from autogen_agentchat.task import TextMentionTermination
 from autogen_agentchat.teams import Swarm
-from autogen_core.components.code_executor import (
-    LocalCommandLineCodeExecutor)
+from autogen_core.components.code_executor import LocalCommandLineCodeExecutor
 from autogen_ext.models import (AzureOpenAIChatCompletionClient,
                                 OpenAIChatCompletionClient)
 
@@ -45,7 +47,7 @@ async def local_executor(script: str):
         code_executor=code_executor,
         description="Execute the code written by the engineer and report the result.",
     )
-    result = await executor.run(script)
+    result = await executor.run(task=script)
     return result.messages[-1].content
 
 
@@ -68,7 +70,6 @@ class KubeCopilotAgent:
         content = str(x.get("content", "")).strip()
         content = content.rstrip(".").rstrip("*").strip()
         return "TERMINATE" == content[-9:].upper()
-
 
     def get_planner_agent(self):
         '''Get the planner agent for the Kubernetes Copilot.'''
@@ -122,7 +123,8 @@ class KubeCopilotAgent:
 
 # Output Format
 
-Provide feedback in a detailed paragraph format, with separate sections for evaluation findings and suggested improvements.
+- Provide feedback in a detailed paragraph format, with separate sections for evaluation findings and suggested improvements.
+- Handoff to Planner if more changes required. Orelse, handoff to Admin. ENSURE only one handoff for your responses.
 ''',
         )
 
@@ -144,8 +146,6 @@ Provide feedback in a detailed paragraph format, with separate sections for eval
 ''',
         )
 
-      
-
     def get_engineer_agent(self):
         '''Get the engineer agent for the Kubernetes Copilot.'''
         return AssistantAgent(
@@ -154,7 +154,7 @@ Provide feedback in a detailed paragraph format, with separate sections for eval
             tools=[local_executor],
             handoffs=["Admin"],
             description="A cloud native principal engineer, tasked with implementing solutions for cloud-native technologies using an approved plan.",
-            system_message='''A cloud native principal engineer with access to the local_executor tool. 
+            system_message='''A cloud native principal engineer with access to the local_executor tool.
             Implement solutions for cloud-native technologies by writing and executing complete and executable Python or shell scripts.
 
 # Steps
@@ -178,7 +178,7 @@ The script should be encapsulated within a code block, with a clear indication o
 
 # Examples
 
-**Example 1**: 
+**Example 1**:
 
 - **Task**: Create a Python script to list all Pods.
 - **Output**:
@@ -195,7 +195,7 @@ The script should be encapsulated within a code block, with a clear indication o
        print("%s\t%s\t%s" % (i.status.pod_ip, i.metadata.namespace, i.metadata.name))
    ```
 
-**Example 2**: 
+**Example 2**:
 
 - **Task**: Write a Shell script to show the top 10 pods with the most memory usage.
 - **Output**:
@@ -206,7 +206,8 @@ The script should be encapsulated within a code block, with a clear indication o
 
 # Response Format
 
-Respond with a clear and concise message indicating the success of the script execution. Ensure the script is executed successfully before reporting the result.
+Respond with a clear and concise message indicating the success of the script execution and handoff to Admin.
+Ensure the script is executed successfully before reporting the result.
 
 # Notes
 
@@ -215,60 +216,15 @@ Respond with a clear and concise message indicating the success of the script ex
 - Consider security best practices while scripting (e.g., input validation to prevent code injection).
 ''',
         )
-    
-#     def get_architect_agent(self):
-#         '''Get the architect agent for the Kubernetes Copilot.'''
-#         return AssistantAgent(
-#             name="Architect",
-#             model_client=self.llm,
-#             # handoffs=["Engineer"],
-#             description="A principal architect in Kubernetes and cloud-native technologies. Interact with the engineer to accomplish the task.",
-#             system_message='''A principal architect on Kubernetes. Discuss with the engineer to develop a comprehensive workflow script to resolve users' cloud-native questions, ensuring it aligns with Kubernetes and cloud-native best practices.
 
-# Engage in a detailed discussion with the engineer to:
-# - Identify and understand the user's cloud-native question.
-# - Ensure the script addresses all necessary technical considerations.
-# - Verify the feasibility and efficiency of the script.
-# - Align the script with best practices in cloud-native technologies.
-
-# Approve the script, fix any bugs, and instruct the engineer to re-execute the script. The execution must receive your explicit approval before proceeding. 
-
-# Conclude by responding to the user's original question.
-
-# # Steps
-
-# 1. **Engagement**: Begin with a detailed discussion to fully understand the user's cloud-native question and objectives.
-# 2. **Script Development**: Collaborate to create a comprehensive workflow script:
-#    - Address all technical requirements and constraints.
-#    - Ensure the script is feasible and efficient using best practices.
-# 3. **Script Testing and Approval**:
-#    - Review the script for bugs and logical errors.
-#    - Fix any identified issues and rerun the script until success.
-#    - Grant explicit approval before the script execution by CodeExecutor.
-# 4. **Final Response**: Provide a response to the user's original question based on the script's successful execution.
-
-# # Output Format
-
-# Provide clear, structured, and step-by-step summary of the script execution.
-
-# # Notes
-
-# - Ensure thorough coverage of Kubernetes and cloud-native technologies during discussions.
-# - Approvals are crucial; proceed only after a detailed verification of the script.
-# - Focus on efficiency and adherence to best practices in cloud-native solutions.
-# ''',
-#         )
-    
-    async def plan(self, instructions):
-        '''Plan the Kubernetes Copilot Agent. This is useful when code execution is not required.'''
-        admin = self.get_admin_agent()
-        planner = self.get_planner_agent()
-        critic = self.get_critic_agent()
-        team = Swarm([admin, planner, critic],
-            termination_condition=TextMentionTermination("TERMINATE"),
+    def get_architect_agent(self):
+        '''Get the architect agent for the Kubernetes Copilot.'''
+        return AssistantAgent(
+            name="Architect",
+            model_client=self.llm,
+            description="A principal architect in Kubernetes and cloud-native technologies.",
+            system_message='''A principal architect on Kubernetes. Conclude and answer user questions clearly in structured output with provided context.''',
         )
-        plan = await team.run(instructions)
-        return plan
 
     async def run(self, instructions):
         '''Run the Kubernetes Copilot Agent.'''
@@ -276,15 +232,41 @@ Respond with a clear and concise message indicating the success of the script ex
         planner = self.get_planner_agent()
         critic = self.get_critic_agent()
         engineer = self.get_engineer_agent()
-        # architect = self.get_architect_agent()
-        team = Swarm(
-            [admin, planner, critic, engineer],
-            termination_condition=TextMentionTermination("TERMINATE"),
-        )
+        architect = self.get_architect_agent()
         # team = SelectorGroupChat(
         #     [admin, planner, critic, engineer],
         #     model_client=self.llm,
         #     termination_condition=TextMentionTermination("TERMINATE"),
         # )
-        result = await team.run(instructions)
-        return result.messages[-1].content
+        # plan = await team.run(task=instructions)
+        # return plan
+        team = Swarm(
+            [admin, planner, critic, engineer],
+            termination_condition=TextMentionTermination("TERMINATE"),
+        )
+        messages = []
+        async for result in team.run_stream(task=instructions):
+            if not self.silent:
+                if isinstance(result, TextMessage):
+                    print(f"{result.source}: {result.content}")
+
+                if isinstance(result, HandoffMessage):
+                    print(f"{result.source} -> {result.target}: {result.content}")
+
+                if isinstance(result, ToolCallMessage):
+                    print(f"{result.source} invoking tool: {
+                          result.content[0].name}()")
+
+                if isinstance(result, StopMessage):
+                    print(f"{result.source}: {result.content}")
+
+            if isinstance(result, TaskResult):
+                messages.extend(result.messages)
+
+        if len(messages) > 0:
+            context = '\n'.join(
+                [c.content for c in messages if 'content' in c])
+            task = f'Respond clearly and concisely to user original question {
+                instructions} \n\nCONTEXT:\n{context}'
+            result = await architect.run(task=task)
+            return result.messages[-1].content
