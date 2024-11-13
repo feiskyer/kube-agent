@@ -5,7 +5,7 @@ import re
 import traceback
 import click
 
-from kube_agent.agent import KubeCopilotAgent
+from kube_agent.agent import KubeCopilotAgent, AssistantAgent
 from kube_agent.kubeconfig import setup_kubeconfig
 from kube_agent.shell import CommandExecutor
 from kube_agent.prompts import (
@@ -119,8 +119,8 @@ def generate(ctx, instructions, verbose, model):
 
     try:
         instructions = ' '.join(instructions)
-        agent = KubeCopilotAgent(model, silent=not verbose)
-        result = agent.plan(get_generate_prompt(instructions))
+        agent = AssistantAgent(model, silent=not verbose)
+        result = agent.run(get_generate_prompt(instructions), instructions)
         print(result)
     except Exception as e:
         traceback.print_exc()

@@ -1,26 +1,30 @@
 [tool.poetry]
 name = "kube-agent"
-version = "0.1.0"
+version = "0.2.0"
 description = "A Kubernetes copilot agent powered by OpenAI"
-authors = ["Your Name <your.email@example.com>"]
+authors = ["Pengfei Ni <feiskyer@gmail.com>"]
 readme = "README.md"
+packages = [{include = "kube_agent"}]
+homepage = "https://github.com/feiskyer/kube-agent"
+repository = "https://github.com/feiskyer/kube-agent"
+keywords = ["kubernetes", "copilot", "openai", "chatgpt", "agent", "ai", "agentic"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-openai = "^1.33"
-kubernetes = "^29.0.0"
-click = "^8.1"
-python-dotenv = "^1.0"
+openai = "^1.54.4"
+kubernetes = ">=31.0.0"
+click = "^8.1.7"
+python-dotenv = "^1.0.1"
 tiktoken = "^0.8"
 numpy = "^2.1.3"
 requests = "^2.32.3"
 
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.0.0"
-pytest-asyncio = "^0.23.5"
-black = "^24.1.1"
+pytest = "^8.3.3"
+pytest-asyncio = "^0.23"
+black = "^24.10.0"
 isort = "^5.13.2"
-flake8 = "^7.0.0"
+flake8 = "^7.1.1"
 
 [build-system]
 requires = ["poetry-core"]

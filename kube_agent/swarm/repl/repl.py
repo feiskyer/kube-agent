@@ -22,9 +22,10 @@ def process_and_print_streaming_response(response):
             for tool_call in chunk["tool_calls"]:
                 f = tool_call["function"]
                 name = f["name"]
+                args = f["arguments"]
                 if not name:
                     continue
-                print(f"\033[94m{last_sender}: \033[95m{name}\033[0m()")
+                print(f"\033[94m{last_sender}: \033[95m{name}\033[0m({args})")
 
         if "delim" in chunk and chunk["delim"] == "end" and content:
             print()  # End of response message

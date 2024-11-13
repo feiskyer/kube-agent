@@ -15,7 +15,7 @@ install: build
 .PHONY: release
 release: build
 	poetry publish
-	gh release create v$(shell poetry version -s)
+	# gh release create v$(shell poetry version -s)
 
 .PHONY: update
 update:

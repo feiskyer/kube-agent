@@ -33,8 +33,7 @@ pip install kube-agent
 - Ensure [`kubectl`](https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/) is installed on the local machine and the kubeconfig file is configured for Kubernetes cluster access.
 - Install [`trivy`](https://github.com/aquasecurity/trivy) to assess container image security issues (for the `audit` command).
 - Set the OpenAI [API key](https://platform.openai.com/account/api-keys) as the `OPENAI_API_KEY` environment variable to enable ChatGPT functionality.
-  - For [Azure OpenAI service](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/quickstart?tabs=command-line&pivots=rest-api#retrieve-key-and-endpoint), please set ` AZURE_OPENAI_API_KEY=<key>` and `AZURE_OPENAI_ENDPOINT=https://<replace-this>.openai.azure.com/`.
-
+  - For [Azure OpenAI service](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/quickstart?tabs=command-line&pivots=rest-api#retrieve-key-and-endpoint), please set `AZURE_OPENAI_API_KEY=<key>` and `AZURE_OPENAI_ENDPOINT=https://<replace-this>.openai.azure.com/`.
 
 ### Run in Kubernetes
 
@@ -78,10 +77,10 @@ Commands:
 
 ### Audit Security Issues for Pod
 
-`kube-copilot audit POD [NAMESPACE]` will audit security issues for a Pod:
+`kube-agent audit POD [NAMESPACE]` will audit security issues for a Pod:
 
 ```sh
-Usage: kube-copilot audit [OPTIONS] POD [NAMESPACE]
+Usage: kube-agent audit [OPTIONS] POD [NAMESPACE]
 
   audit security issues for a Pod
 
@@ -93,10 +92,10 @@ Options:
 
 ### Diagnose Problems for Pod
 
-`kube-copilot diagnose POD [NAMESPACE]` will diagnose problems for a Pod:
+`kube-agent diagnose POD [NAMESPACE]` will diagnose problems for a Pod:
 
 ```sh
-Usage: kube-copilot diagnose [OPTIONS] POD [NAMESPACE]
+Usage: kube-agent diagnose [OPTIONS] POD [NAMESPACE]
 
   diagnose problems for a Pod
 
@@ -108,10 +107,10 @@ Options:
 
 ### Analyze Potential Issues for k8s Object
 
-`kube-copilot analyze RESOURCE NAME [NAMESPACE]` will analyze potential issues for the given resource object:
+`kube-agent analyze RESOURCE NAME [NAMESPACE]` will analyze potential issues for the given resource object:
 
 ```sh
-Usage: kube-copilot analyze [OPTIONS] RESOURCE NAME [NAMESPACE]
+Usage: kube-agent analyze [OPTIONS] RESOURCE NAME [NAMESPACE]
 
   analyze issues for a given resource
 
@@ -123,11 +122,11 @@ Options:
 
 ### Execute Operations Based on Prompt Instructions
 
-`kube-copilot execute INSTRUCTIONS` will execute operations based on prompt instructions.
+`kube-agent execute INSTRUCTIONS` will execute operations based on prompt instructions.
 It could also be used to ask any questions.
 
 ```sh
-Usage: kube-copilot execute [OPTIONS] INSTRUCTIONS
+Usage: kube-agent execute [OPTIONS] INSTRUCTIONS
 
   execute operations based on prompt instructions
 
@@ -139,12 +138,12 @@ Options:
 
 ### Generate Kubernetes Manifests
 
-Use the `kube-copilot generate` command to create Kubernetes manifests based on
+Use the `kube-agent generate` command to create Kubernetes manifests based on
 the provided prompt instructions. After generating the manifests, you will be
 prompted to confirm whether you want to apply them.
 
 ```sh
-Usage: kube-copilot generate [OPTIONS] INSTRUCTIONS
+Usage: kube-agent generate [OPTIONS] INSTRUCTIONS
 
   generate Kubernetes manifests
 

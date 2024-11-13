@@ -150,7 +150,7 @@ def get_generate_prompt(instructions):
 2. Harness your domain expertise to methodically examine the generated YAML. Undertake a detailed, step-by-step evaluation of any issues that surface during your review. Address and resolve any issues you identify and verify the integrity and accuracy of the YAML manifests.
 3. Upon rectification and validation, present the final YAML manifests in their raw form. In the case of multiple YAML files, consolidate them into one document, using '---' as a delimiter between each manifest.
 
-When analyzing and refining the YAML manifests, consider the following Chain of Thought approach:
+When analysing and refining the YAML manifests, consider the following Chain of Thought approach:
 
 - Begin by understanding the intended function and environment for the YAML manifests based on the provided instructions.
 - Evaluate the security implications of each component in the manifest, referencing security standards and best practices throughout your analysis.
