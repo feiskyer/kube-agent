@@ -4,7 +4,8 @@ import os
 from autogen_agentchat.agents import AssistantAgent, CodeExecutorAgent
 from autogen_agentchat.base import TaskResult
 from autogen_agentchat.messages import (HandoffMessage, StopMessage,
-                                        TextMessage, ToolCallMessage)
+                                        TextMessage, ToolCallMessage,
+                                        ToolCallResultMessage)
 from autogen_agentchat.task import TextMentionTermination
 from autogen_agentchat.teams import Swarm
 from autogen_core.components.code_executor import LocalCommandLineCodeExecutor
@@ -115,7 +116,7 @@ class KubeCopilotAgent:
 1. **Examine Submissions:** Evaluate plans, claims, and code for accuracy, practicality, and adherence to best cloud-native practices.
    - For plans: Check for data sources, benchmarks, and references.
    - For claims: Verify factual accuracy and logical consistency.
-   - For code: Assess correctness, completeness, and adherence to the initial plan.
+   - For code: Assess correctness, completeness, adherence to the initial plan and ensure codes encapsulated within a code block (DO NOT USE INLINE CODES).
 2. **Provide Feedback:** Offer detailed feedback focusing on improving submission quality.
    - Highlight strong areas.
    - Suggest modifications for identified issues or gaps.
@@ -124,7 +125,7 @@ class KubeCopilotAgent:
 # Output Format
 
 - Provide feedback in a detailed paragraph format, with separate sections for evaluation findings and suggested improvements.
-- Handoff to Planner if more changes required. Orelse, handoff to Admin. ENSURE only one handoff for your responses.
+- Handoff to Planner if more changes required. Or else, handoff to Admin. ENSURE only one handoff for your responses.
 ''',
         )
 
@@ -141,6 +142,7 @@ class KubeCopilotAgent:
 2. Review the plan for technical correctness, feasibility, and alignment with cloud-native best practices.
 3. Instruct engineer to implement the plan.
 4. Review the implementation result.
+5. Repeat step 3 and step 4 to ensure all plan is implemented and results are collected.
 5. Conclude your participations and respond to the user's original question.
 6. Ends with the word 'TERMINATE' once done all the discussions.
 ''',
@@ -223,8 +225,14 @@ Ensure the script is executed successfully before reporting the result.
             name="Architect",
             model_client=self.llm,
             description="A principal architect in Kubernetes and cloud-native technologies.",
-            system_message='''A principal architect on Kubernetes. Conclude and answer user questions clearly in structured output with provided context.''',
-        )
+            system_message='''A principal architect on Kubernetes. Conclude and answer user questions clearly in structured output with provided context.
+
+## Instructions
+
+1. Extract user intent and instructions from original user input (first message from context).
+2. Carefully review the conversation history from context.
+3. Provide a clear and concise response to the user's intent. DO NOT INCLUDE ANY DETAILS BEYOND RESPONSE TO USER INTENT.
+''')
 
     async def run(self, instructions):
         '''Run the Kubernetes Copilot Agent.'''
@@ -233,6 +241,7 @@ Ensure the script is executed successfully before reporting the result.
         critic = self.get_critic_agent()
         engineer = self.get_engineer_agent()
         architect = self.get_architect_agent()
+
         # team = SelectorGroupChat(
         #     [admin, planner, critic, engineer],
         #     model_client=self.llm,
@@ -244,29 +253,45 @@ Ensure the script is executed successfully before reporting the result.
             [admin, planner, critic, engineer],
             termination_condition=TextMentionTermination("TERMINATE"),
         )
-        messages = []
+        messages = [f'User input: {instructions}']
         async for result in team.run_stream(task=instructions):
             if not self.silent:
                 if isinstance(result, TextMessage):
-                    print(f"{result.source}: {result.content}")
+                    messages.append(f'{result.source}: {result.content}')
+                    print(f"\033[94m{result.source}:\033[0m",
+                          end=" ", flush=True)
+                    print(f"{result.content}")
 
                 if isinstance(result, HandoffMessage):
-                    print(f"{result.source} -> {result.target}: {result.content}")
+                    messages.append(f'{result.source} handoff to {result.target}')
+                    print(
+                        f"\033[94m{result.source}->{result.target}:\033[0m",
+                        end=" ", flush=True)
+                    print(f"{result.content}")
 
                 if isinstance(result, ToolCallMessage):
-                    print(f"{result.source} invoking tool: {
-                          result.content[0].name}()")
+                    messages.append(f'{result.source} invoking tool: {result.content[0].name}({result.content[0].arguments})')
+                    print(f"\033[94m{result.source}:\033[0m",
+                          end=" ", flush=True)
+                    print(f"invoking tool: {result.content[0].name}()")
+
+                if isinstance(result, ToolCallResultMessage):
+                    messages.append(f'{result.source} got tool result: {
+                                    result.content[0].content}()')
+                    print(f"\033[94m{result.source}:\033[0m",
+                          end=" ", flush=True)
+                    print(f"got tool result: {result.content[0].content}")
 
                 if isinstance(result, StopMessage):
-                    print(f"{result.source}: {result.content}")
+                    messages.append(f'{result.source} stopped the conversation: {result.content}')
+                    print(f"\033[94m{result.source}:\033[0m",
+                          end=" ", flush=True)
+                    print(f"{result.content}")
 
             if isinstance(result, TaskResult):
-                messages.extend(result.messages)
+                # messages.extend(result.messages)
+                print("\n\n")
 
-        if len(messages) > 0:
-            context = '\n'.join(
-                [c.content for c in messages if 'content' in c])
-            task = f'Respond clearly and concisely to user original question {
-                instructions} \n\nCONTEXT:\n{context}'
-            result = await architect.run(task=task)
-            return result.messages[-1].content
+        task = f'Summarize the conversation and respond to user question {instructions} \n\nCONTEXT:\n{"\n".join(messages)}'
+        result = await architect.run(task=task)
+        return result.messages[-1].content
